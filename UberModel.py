@@ -13,9 +13,7 @@ class driver():
     def __init__(self, x_dim, y_dim):
         """Defines a driver whose default location is randomly located within the dimensions of the world and who hasn't been
         hired and doesn't have a rider in their vehicle."""
-        self.x = np.random.randint(0,x_dim)
-        self.y = np.random.randint(0,y_dim)
-        self.location = (self.x, self.y)
+        self.location = [np.random.randint(0,x_dim), np.random.randint(0,y_dim)]
         self.has_rider = False   # True when rider is in their car
         self.my_rider = "None"   # Corresponds to rider from when the rider selects the driver until they've been dropped off.
         
@@ -29,47 +27,39 @@ class driver():
 
         if self.my_rider != "None":       
             if self.has_rider == False:
-                if self.x < self.my_rider.x:
-                    self.x += 1
-                    self.location = (self.x, self.y)
-                elif self.x > self.my_rider.x:
-                    self.x -= 1
-                    self.location = (self.x, self.y)
+                if self.location[0] < self.my_rider.location[0]:
+                    self.location[0] += 1
+                elif self.location[0] > self.my_rider.location[0]:
+                    self.location[0] -= 1
                 else:
-                    if self.y < self.my_rider.y:
-                        self.y += 1
-                        self.location = (self.x, self.y)
-                    elif self.y > self.my_rider.y:
-                        self.y -= 1
-                        self.location = (self.x, self.y)
+                    if self.location[1] < self.my_rider.location[1]:
+                        self.location[1] += 1
+                    elif self.location[1] > self.my_rider.location[1]:
+                        self.location[1] -= 1
                     else:
                         self.has_rider = True
             elif self.has_rider == True:
-                if self.x < self.my_rider.x_dest:
-                    self.x += 1
-                    self.my_rider.x += 1
-                    self.location = (self.x, self.y)
-                elif self.x > self.my_rider.x_dest:
-                    self.x -= 1
-                    self.my_rider.x -= 1
-                    self.location = (self.x, self.y)
+                if self.location[0] < self.my_rider.destination[0]:
+                    self.location[0] += 1
+                    self.my_rider.location[0] += 1
+                elif self.location[0] > self.my_rider.destination[0]:
+                    self.location[0] -= 1
+                    self.my_rider.location[0] -= 1
                 else:
-                    if self.y < self.my_rider.y_dest:
-                        self.y += 1
-                        self.my_rider.y += 1
-                        self.location = (self.x, self.y)
-                    elif self.y > self.my_rider.y_dest:
-                        self.y -= 1
-                        self.my_rider.y -= 1
-                        self.location = (self.x, self.y)                                            
+                    if self.location[1] < self.my_rider.destination[1]:
+                        self.location[1] += 1
+                        self.my_rider.location[1] += 1
+                    elif self.location[1] > self.my_rider.destination[1]:
+                        self.location[1] -= 1
+                        self.my_rider.location[1] -= 1                                          
         
     def draw(self):
         """Plots the driver green if they have a rider, red if they don't have a rider."""
         color = 'r'
         if (self.has_rider == True):
             color = 'g'
-        plt.scatter(self.x, self.y, s = 80, color=color);
-        
+        plt.scatter(self.location[0], self.location[1], s = 80, color=color);
+                
         
 class rider():
     """Creates a driver capable of picking up riders and taking them to their destination. Drivers may only have 1 rider at a
@@ -77,16 +67,15 @@ class rider():
     
     def __init__(self, x_dim, y_dim):
         """Defines a rider whose default location is randomly located within the dimensions of the world, who has a
-        destination at another location, and who has no driver."""
-        self.x = np.random.randint(0,x_dim)
-        self.y = np.random.randint(0,y_dim)      
-        self.location = (self.x, self.y)
-        self.x_dest = np.random.randint(0,x_dim)
-        self.y_dest = np.random.randint(0,y_dim)  
-        self.destination = (self.x_dest, self.y_dest)
+        destination at another location, and who has no driver."""    
+        self.location = [np.random.randint(0,x_dim), np.random.randint(0,y_dim)]
+        self.destination = [np.random.randint(0,x_dim), np.random.randint(0,y_dim)]
+        # Prevents the possibility that the location and destination are the same
+        while self.destination == self.location: 
+            self.destination = (self.x_dest, self.y_dest)
         self.wait_time = 0    # amount of time rider waits after driver has been selected until they're picked up
         self.ride_time = 0    # amount of interations it takes to be driven to the destination
-        # Still need to prevent possibility of location and destination being the same
+        
         
     def closest_available_driver(self, available_drivers):
         """ Uses a a list of available drivers to calculate the distance between the rider and all available drivers and assigns
@@ -114,7 +103,8 @@ class rider():
     
     def draw(self):
         """Plots the rider yellow."""
-        plt.scatter(self.x, self.y, s = 80, color='y')
+        plt.scatter(self.location[0], self.location[1], s = 80, color='y')
+    
         
 def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterations = 100, vis = True):
     """Creates a world of size x_dim by y_dim with the specified number of drivers (red points) and if vis = True runs a 
@@ -155,8 +145,10 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
                 closest_driver, closest_driver_location = new_rider.closest_available_driver(available_drivers)
                 closest_driver.my_rider = new_rider
                 available_drivers.remove(closest_driver)
+            else:
+                print("No available driver. A rider may not have been assigned")
                 
-            """***The above block is a problem since it makes it so that is there isn't an available driver, the rider will 
+            """***The above block is a problem since it makes it so that if there isn't an available driver, the rider will 
             never get assigned to a driver."""
         
         # For each driver, if they have a job they move one step closer towards their destination.
@@ -185,10 +177,8 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
                     d.my_rider = "None"
                     available_drivers.append(d)
                     
-        
         iterations_ran += 1
         
-        #making visualization optional to speed up repeated iteration
         if vis == True:
             # Plots the world
             plt.imshow(world.T, origin='lower', aspect='equal');
@@ -204,3 +194,4 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
             time.sleep(0.0001)      # Sleep for a fraction of a second to allow animation to catch up
             
     return rider_wait_times, rider_ride_times
+    
