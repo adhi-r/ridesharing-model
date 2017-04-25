@@ -116,6 +116,7 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
     world = np.zeros((x_dim,y_dim))
     if vis == True:
         fig, ax = plt.subplots(figsize=(30,15));
+        ax.set_axis_bgcolor('white')
     
     # Creates a list of drivers and available drivers
     drivers = [driver(x_dim,y_dim) for a in range(0,num_drivers)]
@@ -197,4 +198,69 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
             time.sleep(0.0001)      # Sleep for a fraction of a second to allow animation to catch up
             
     return rider_wait_times, rider_ride_times, dropped_riders
+
+def experiment(independent_variable = '', IV_vals = [], x_dim = 70, y_dim = 30, iterations = 100, vis = False):
+    '''
+    Conducts the experiment of the given parameters on the UberModel, and returns the data of the experiment
+    in a form that makes analysis and plotting easy.
     
+    The last six parameters are default parameters borrowed from the `run()` function and are passed 
+    into the `run()` within the experiment. The default values are the same, save for `vis` which is 
+    set to `False` by default to expedite the experiment.
+    
+    `independent_variable` must be a string, either "rider" or "driver".
+    
+    `IV_vals` must be a list of the tested values of the independent variable. For drivers this must
+    be a list of integers. For riders it must be a list of values greater than 0 and less than 1.'''
+    
+    wait_times_per_IV = []
+    ride_times_per_IV = []
+    dropped_riders_per_IV = []
+    
+    wait_times_per_run = []
+    ride_times_per_run = []
+    dropped_riders_per_run = []
+    
+    # Check which experiment to do
+    if to.lower(str(independent_variable)) == 'driver':
+        
+        # Check if independent values make sense
+        if False in [x % 1 == 0 for x in IV_vals]:
+            raise ValueError('You are testing quantity of drivers, so only use integers in IV_vals.')
+            
+        # Run the model over each value of the independent variable list           
+        for val in IV_vals:
+            w, r = run(num_drivers = val, x_dim = x_dim, y_dim = y_dim, iterations = iterations, vis = vis)
+            
+            # Averaging the wait times of every rider in the run
+            avg_w = sum(w)/len(w)
+            avg_r = sum(r)/len(r)
+            
+            wait_times_per_run.append(avg_w)
+            ride_times_per_run.append(avg_r)
+                              
+    if to.lower(str(independent_variable)) == 'rider':
+        
+        # Check if independent values make sense
+        if False in [x > 1 or x <= 0 for x in IV_vals]:
+            raise ValueError('You are testing probability of rider spawn, so please only use floats between 0 and 1.')
+            
+        # Run the model over each value of the independent variable list           
+        for val in IV_vals:
+            w, r, d = run(rider_spawn_prob = val, x_dim = x_dim, y_dim = y_dim, iterations = iterations, vis = vis)
+            
+            # Averaging the wait times of every rider in the run
+            avg_w = sum(w)/len(w)
+            avg_r = sum(r)/len(r)
+            avg_d = sum(d)/len(d)
+            
+            wait_times_per_run.append(avg_w)
+            ride_times_per_run.append(avg_r)
+            dropped_riders_per_run.append(avg_d)
+            
+    # Averaging the average wait times of every rider of every run to get a value that corresponds with the IV
+    wait_times_per_IV.append(sum(wait_times_per_run)/len(wait_times_per_run))
+    run_times_per_IV.append(sum(run_times_per_run)/len(run_times_per_run))
+    dropped_riders_per_IV.append(sum(dropped_riders_per_IV)/len(dropped_riders_per_IV)
+                                 
+    return IV_vals, wait_times_per_IV, run_times_per_IV, dropped_riders_per_IV
