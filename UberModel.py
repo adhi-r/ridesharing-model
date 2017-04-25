@@ -222,7 +222,7 @@ def experiment(independent_variable = '', IV_vals = [], x_dim = 70, y_dim = 30, 
     dropped_riders_per_run = []
     
     # Check which experiment to do
-    if to.lower(str(independent_variable)) == 'driver':
+    if str(independent_variable).lower() == 'driver':
         
         # Check if independent values make sense
         if False in [x % 1 == 0 for x in IV_vals]:
@@ -230,7 +230,7 @@ def experiment(independent_variable = '', IV_vals = [], x_dim = 70, y_dim = 30, 
             
         # Run the model over each value of the independent variable list           
         for val in IV_vals:
-            w, r = run(num_drivers = val, x_dim = x_dim, y_dim = y_dim, iterations = iterations, vis = vis)
+            w, r, d = run(num_drivers = val, x_dim = x_dim, y_dim = y_dim, iterations = iterations, vis = vis)
             
             # Averaging the wait times of every rider in the run
             avg_w = sum(w)/len(w)
@@ -238,11 +238,17 @@ def experiment(independent_variable = '', IV_vals = [], x_dim = 70, y_dim = 30, 
             
             wait_times_per_run.append(avg_w)
             ride_times_per_run.append(avg_r)
-                              
-    if to.lower(str(independent_variable)) == 'rider':
+            dropped_riders_per_run.append(d)
+            
+            # Averaging the average wait times of every rider of every run to get a value that corresponds with the IV
+            wait_times_per_IV.append(sum(wait_times_per_run)/len(wait_times_per_run))
+            ride_times_per_IV.append(sum(ride_times_per_run)/len(ride_times_per_run))
+            dropped_riders_per_IV.append(sum(dropped_riders_per_run)/len(dropped_riders_per_run))
+            
+    if str(independent_variable).lower() == 'rider':
         
         # Check if independent values make sense
-        if False in [x > 1 or x <= 0 for x in IV_vals]:
+        if True in [x > 1 or x <= 0 for x in IV_vals]:
             raise ValueError('You are testing probability of rider spawn, so please only use floats between 0 and 1.')
             
         # Run the model over each value of the independent variable list           
@@ -252,15 +258,15 @@ def experiment(independent_variable = '', IV_vals = [], x_dim = 70, y_dim = 30, 
             # Averaging the wait times of every rider in the run
             avg_w = sum(w)/len(w)
             avg_r = sum(r)/len(r)
-            avg_d = sum(d)/len(d)
+            #avg_d = 
             
             wait_times_per_run.append(avg_w)
             ride_times_per_run.append(avg_r)
-            dropped_riders_per_run.append(avg_d)
+            dropped_riders_per_run.append(d)
             
-    # Averaging the average wait times of every rider of every run to get a value that corresponds with the IV
-    wait_times_per_IV.append(sum(wait_times_per_run)/len(wait_times_per_run))
-    run_times_per_IV.append(sum(run_times_per_run)/len(run_times_per_run))
-    dropped_riders_per_IV.append(sum(dropped_riders_per_IV)/len(dropped_riders_per_IV)
+            # Averaging the average wait times of every rider of every run to get a value that corresponds with the IV
+            wait_times_per_IV.append(sum(wait_times_per_run)/len(wait_times_per_run))
+            ride_times_per_IV.append(sum(ride_times_per_run)/len(ride_times_per_run))
+            dropped_riders_per_IV.append(sum(dropped_riders_per_run)/len(dropped_riders_per_run))
                                  
-    return IV_vals, wait_times_per_IV, run_times_per_IV, dropped_riders_per_IV
+    return IV_vals, wait_times_per_IV, ride_times_per_IV, dropped_riders_per_IV
