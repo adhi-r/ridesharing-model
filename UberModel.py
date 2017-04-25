@@ -58,7 +58,7 @@ class driver():
         color = 'r'
         if (self.has_rider == True):
             color = 'g'
-        plt.scatter(self.location[0], self.location[1], s = 80, color=color);
+        plt.scatter(self.location[0], self.location[1], s = 150, color=color);
                 
         
 class rider():
@@ -103,7 +103,7 @@ class rider():
     
     def draw(self):
         """Plots the rider yellow."""
-        plt.scatter(self.location[0], self.location[1], s = 80, color='y')
+        plt.scatter(self.location[0], self.location[1], s = 150, color='y')
     
         
 def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterations = 100, vis = True):
@@ -127,7 +127,7 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
     riders = []
     rider_wait_times = []
     rider_ride_times = []
-    
+    dropped_riders = 0
     
     iterations_ran = 0
     
@@ -138,7 +138,7 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
             # A new rider & their destination spawn
             new_rider = rider(x_dim,y_dim)   
             riders.append(new_rider)
-            world[new_rider.destination] = 15
+            world[tuple(new_rider.destination)] = 15
             
             # Assigns the closest available driver to the rider, if there is an available driver.
             if available_drivers != []:
@@ -146,7 +146,10 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
                 closest_driver.my_rider = new_rider
                 available_drivers.remove(closest_driver)
             else:
-                print("No available driver. A rider may not have been assigned")
+                world[tuple(new_rider.destination)] -= 15
+                riders.remove(new_rider)
+                dropped_riders += 1
+                #print("No available driver. A rider may not have been assigned")
                 
             """***The above block is a problem since it makes it so that if there isn't an available driver, the rider will 
             never get assigned to a driver."""
@@ -172,7 +175,7 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
                     rider_ride_times.append(d.my_rider.ride_time)
                     # Driver drops rider off and remove them from the animation
                     riders.remove(d.my_rider)
-                    world[d.my_rider.destination] = 0
+                    world[tuple(d.my_rider.destination)] = 0
                     d.has_rider = False
                     d.my_rider = "None"
                     available_drivers.append(d)
@@ -193,5 +196,5 @@ def run(num_drivers = 2, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 30, iterati
             fig.clear()             # Prevent overlapping and layered plots
             time.sleep(0.0001)      # Sleep for a fraction of a second to allow animation to catch up
             
-    return rider_wait_times, rider_ride_times
+    return rider_wait_times, rider_ride_times, dropped_riders
     
