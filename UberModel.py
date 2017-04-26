@@ -186,7 +186,9 @@ def run(num_drivers = 10, rider_spawn_prob = 0.3, x_dim = 70, y_dim = 70, iterat
         if vis == True:
             # Plots the world
             plt.imshow(world.T, origin='lower', aspect='equal');
-            plt.text(x_dim - 8, y_dim - 2,'Dropped Riders: %s' %dropped_riders, color='w', size = 15, horizontalalignment='center', verticalalignment='center')
+            plt.text(x_dim - 8, y_dim - 2,'Iterations: %s' %iterations_ran, color='w', size = 15, horizontalalignment='center', verticalalignment='center')
+            plt.text(x_dim - 8, y_dim - 4,'Dropped Riders: %s' %dropped_riders, color='w', size = 15, horizontalalignment='center', verticalalignment='center')
+
             for r in range(0,len(riders)):
                 riders[r].draw()
             for d in range(0,num_drivers):
