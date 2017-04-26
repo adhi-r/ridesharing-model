@@ -106,7 +106,7 @@ class rider():
         plt.scatter(self.location[0], self.location[1], s = 150, color='y')
     
         
-def run(num_drivers = 10, rider_spawn_prob = 0.2, x_dim = 70, y_dim = 70, iterations = 100, vis = True):
+def run(num_drivers = 10, rider_spawn_prob = 0.3, x_dim = 70, y_dim = 70, iterations = 100, vis = True):
     """Creates a world of size x_dim by y_dim with the specified number of drivers (red points) and if vis = True runs a 
     simulation in which riders (yellow points) and their destinations (red splotches) spawn according to the given rider spawn
     probability, riders select the closest driver, and said driver picks up the rider and drops them off at their destination.
@@ -269,4 +269,5 @@ def experiment(independent_variable = '', IV_vals = [], x_dim = 70, y_dim = 30, 
             ride_times_per_IV.append(sum(ride_times_per_run)/len(ride_times_per_run))
             dropped_riders_per_IV.append(sum(dropped_riders_per_run)/len(dropped_riders_per_run))
                                  
+    
     return IV_vals, wait_times_per_IV, ride_times_per_IV, dropped_riders_per_IV
