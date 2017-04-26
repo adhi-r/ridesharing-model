@@ -72,7 +72,7 @@ class rider():
         self.destination = [np.random.randint(0,x_dim), np.random.randint(0,y_dim)]
         # Prevents the possibility that the location and destination are the same
         while self.destination == self.location: 
-            self.destination = (self.x_dest, self.y_dest)
+            self.destination = [np.random.randint(0,x_dim), np.random.randint(0,y_dim)]
         self.wait_time = 0    # amount of time rider waits after driver has been selected until they're picked up
         self.ride_time = 0    # amount of interations it takes to be driven to the destination
         
