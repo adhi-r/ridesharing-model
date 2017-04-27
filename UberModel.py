@@ -124,7 +124,7 @@ def run(num_drivers = 10, rider_spawn_prob = 0.3, x_dim = 70, y_dim = 70, iterat
     for d in drivers:
         available_drivers.append(d)
     
-    # Creates an empty list for riders, rider wait times, and rider ride times
+    # Creates an empty list for riders, rider wait times, rider ride times, and initializes a count for dropped riders
     riders = []
     rider_wait_times = []
     rider_ride_times = []
@@ -146,14 +146,12 @@ def run(num_drivers = 10, rider_spawn_prob = 0.3, x_dim = 70, y_dim = 70, iterat
                 closest_driver, closest_driver_location = new_rider.closest_available_driver(available_drivers)
                 closest_driver.my_rider = new_rider
                 available_drivers.remove(closest_driver)
+            # Otherwise, the new rider leaves. 
             else:
                 world[tuple(new_rider.destination)] -= 15
                 riders.remove(new_rider)
                 dropped_riders += 1
                 #print("No available driver. A rider may not have been assigned")
-                
-            """***The above block is a problem since it makes it so that if there isn't an available driver, the rider will 
-            never get assigned to a driver."""
         
         # For each driver, if they have a job they move one step closer towards their destination.
         for d in drivers: 
